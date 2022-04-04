@@ -1,0 +1,4 @@
+motorcontrol.c:16:6:enable_motor_driver	8	static
+motorcontrol.c:20:6:disable_motor_driver	8	static
+motorcontrol.c:25:6:set_motor_dir	16	static
+motorcontrol.c:33:6:send_motor_steps	16	static

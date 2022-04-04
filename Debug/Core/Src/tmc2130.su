@@ -1,0 +1,3 @@
+tmc2130.c:15:10:tmc_readwrite_register	48	static
+tmc2130.c:63:6:tmc_set_motor_current	24	static
+tmc2130.c:78:6:tmc_init	24	static
