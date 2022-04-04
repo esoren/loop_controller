@@ -196,12 +196,12 @@ void TIM1_TRG_COM_TIM11_IRQHandler(void)
 void TIM1_CC_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_CC_IRQn 0 */
-    HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+   // HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
 
   /* USER CODE END TIM1_CC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_CC_IRQn 1 */
-  HAL_TIM_OC_Stop_IT(&htim1, TIM_CHANNEL_1);
+ // HAL_TIM_OC_Stop_IT(&htim1, TIM_CHANNEL_1);
 
   /* USER CODE END TIM1_CC_IRQn 1 */
 }

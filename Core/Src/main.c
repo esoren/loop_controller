@@ -106,11 +106,11 @@ int main(void)
 
 
   DWT_Delay_Init();
+  tmc_init();
 
 
   uint8_t dir = 1;
-  tmc_init();
-  uint32_t wait = 30000;
+  uint32_t wait = 40000;
   uint8_t move = 1;
 
   while(1==1) {
