@@ -1,4 +1,5 @@
-motorcontrol.c:16:6:enable_motor_driver	8	static
-motorcontrol.c:20:6:disable_motor_driver	8	static
-motorcontrol.c:25:6:set_motor_dir	16	static
-motorcontrol.c:33:6:send_motor_steps	16	static
+motorcontrol.c:18:6:enable_motor_driver	8	static
+motorcontrol.c:22:6:disable_motor_driver	8	static
+motorcontrol.c:27:6:set_motor_dir	16	static
+motorcontrol.c:35:6:send_motor_steps	16	static
+motorcontrol.c:48:6:StartMotorTask	56	static

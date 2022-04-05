@@ -12,5 +12,6 @@ void enable_motor_driver(void);
 void disable_motor_driver(void);
 void set_motor_dir(uint8_t motor_dir);
 void send_motor_steps(uint32_t step_count, uint32_t delay_in_us);
+void StartMotorTask(void const * argument);
 
 #endif /* INC_MOTORCONTROL_H_ */
