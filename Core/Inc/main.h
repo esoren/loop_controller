@@ -69,7 +69,7 @@ void Error_Handler(void);
 #define MOTOR_STEP_Pin GPIO_PIN_8
 #define MOTOR_STEP_GPIO_Port GPIOC
 #define MOTOR_DIR_Pin GPIO_PIN_9
-#define MOTOR_DIR_GPIO_Port GPIOC
+#define MOTOR_DIR_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14

@@ -53,6 +53,7 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -103,26 +104,55 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   enable_motor_driver();
-
-
   DWT_Delay_Init();
   tmc_init();
 
 
   uint8_t dir = 1;
-  uint32_t wait = 40000;
+  uint32_t wait = 20000;
   uint8_t move = 1;
+  uint32_t res = 0;
+  uint32_t sg_result = 0;
+  uint32_t min_sg_result = 1024;
+  uint32_t max_sg_result = 0;
 
-  while(1==1) {
-	  if(move == 1) {
-		  send_motor_steps(4000,wait);
-		  move = 0;
+  uint32_t sg_result_hist[1000];
+  uint8_t status_hist[1000];
+  uint32_t count = 0;
+  uint8_t status = 0;
+  uint8_t homing = 1;
+  set_motor_dir(0);
+  while(homing == 1) {
+	  if(move) {
+		  send_motor_steps(400,wait);
+		  HAL_Delay(25); //wait for motor to settle before checking the stall result
+
+		  res = tmc_readwrite_register(TMC_REG_DRV_STATUS, res, 0);
+		  sg_result = res & 0x3ff;
+		  sg_result_hist[count] = sg_result;
+
+		  if(sg_result > max_sg_result) max_sg_result = sg_result;
+  		  if(sg_result > 0 && sg_result < min_sg_result ) min_sg_result = sg_result;
+
+  		  status = tmc_get_status();
+		  if((status >> 2) & 0x01) { //if stall is detected
+			  move = 0;
+	      }
+
+
+
+	  } else {
+		  homing = 0;
 	  }
-
   }
 
+  set_motor_dir(1);
+  send_motor_steps(19100,wait);
 
 
+  while(1==1) {
+	  move = 1;
+  }
 
   /* USER CODE END 2 */
 

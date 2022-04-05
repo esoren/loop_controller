@@ -12,6 +12,61 @@
 #include "gpio.h"
 
 
+uint32_t tmc_enable_stallguard(void) {
+	uint32_t reg_data = 0;
+	int8_t sgt = 0;
+
+
+	reg_data = 0x01060000; //sgt = 64, filt = 1;
+
+	tmc_readwrite_register(TMC_REG_COOLCONF, reg_data, 1);
+
+
+
+
+	return 0;
+}
+
+
+uint8_t tmc_get_status() {
+		uint8_t rx_data[5];
+		uint8_t tx_data[5];
+		uint32_t payload =0;
+		uint8_t status = 0;
+		uint8_t send_count = 2;
+
+		uint8_t addr = TMC_REG_GSTAT;
+		uint32_t data = 0;
+
+
+		tx_data[0] = addr;
+		tx_data[1] = (data >> 24) & 0x00ff;
+		tx_data[2] = (data >> 16) & 0x00ff;
+		tx_data[3] = (data >> 8)  & 0x00ff;
+		tx_data[4] = (data)	      & 0x00ff;
+
+		while(HAL_SPI_GetState(&hspi1) != HAL_SPI_STATE_READY);
+		HAL_GPIO_WritePin(MOTOR_CS_GPIO_Port, MOTOR_CS_Pin, GPIO_PIN_RESET);
+
+		while(HAL_SPI_GetState(&hspi1) != HAL_SPI_STATE_READY);
+		HAL_SPI_TransmitReceive(&hspi1, (uint8_t *) tx_data, (uint8_t *) rx_data,  sizeof(rx_data), HAL_MAX_DELAY );
+
+		while(HAL_SPI_GetState(&hspi1) != HAL_SPI_STATE_READY);
+		HAL_GPIO_WritePin(MOTOR_CS_GPIO_Port, MOTOR_CS_Pin, GPIO_PIN_SET);
+
+
+
+
+
+		status = rx_data[0];
+
+		return status;
+
+
+
+
+}
+
 uint32_t tmc_readwrite_register(uint8_t addr, uint32_t data, uint8_t set_write_flag) {
 
 	uint8_t rx_data[5];
@@ -23,6 +78,7 @@ uint32_t tmc_readwrite_register(uint8_t addr, uint32_t data, uint8_t set_write_f
 	if(set_write_flag) {
 		addr |= 0x80;
 		send_count = 1;
+
 	}
 
 	//send twice according to TMC2130 datasheet
@@ -107,6 +163,9 @@ void tmc_init(void) {
 
 	//en_pwm_mode = 1, DIAG1 set to indicate stall, push-pull active high
 	tmc_readwrite_register(TMC_REG_GCONF, 0x2104, 1);
+
+	//enable stallguard and set sensitvity
+	tmc_enable_stallguard();
 
 	//switching velocity = 35000
 	tmc_readwrite_register(TMC_REG_TPWMTHRS, 0x1F4, 1);
