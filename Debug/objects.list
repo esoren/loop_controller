@@ -1,6 +1,5 @@
 "Core/Src/adc.o"
 "Core/Src/delay.o"
-"Core/Src/dwt_stm32_delay.o"
 "Core/Src/freertos.o"
 "Core/Src/gpio.o"
 "Core/Src/main.o"

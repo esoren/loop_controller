@@ -49,7 +49,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/include/timers.h \
  ../Core/Inc/adc.h ../Core/Inc/main.h ../Core/Inc/spi.h ../Core/Inc/tim.h \
  ../Core/Inc/usart.h ../Core/Inc/gpio.h ../Core/Inc/motorcontrol.h \
- ../Core/Inc/dwt_stm32_delay.h ../Core/Inc/tmc2130.h
+ ../Core/Inc/tmc2130.h
 
 ../Core/Inc/main.h:
 
@@ -162,7 +162,5 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/gpio.h:
 
 ../Core/Inc/motorcontrol.h:
-
-../Core/Inc/dwt_stm32_delay.h:
 
 ../Core/Inc/tmc2130.h:

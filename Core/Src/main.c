@@ -30,7 +30,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "motorcontrol.h"
-#include "dwt_stm32_delay.h"
 #include "tmc2130.h"
 /* USER CODE END Includes */
 
@@ -104,7 +103,6 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   enable_motor_driver();
-  DWT_Delay_Init();
   tmc_init();
 
   HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );

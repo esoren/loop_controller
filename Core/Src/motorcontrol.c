@@ -5,15 +5,17 @@
  *      Author: esoren
  */
 
-
+#include "FreeRTOS.h"
 #include "gpio.h"
 #include "stm32f4xx_hal.h"
 #include "main.h"
 #include "motorcontrol.h"
-#include "dwt_stm32_delay.h"
 #include "tim.h"
 #include "tmc2130.h"
 
+//extern QueueHandle_t xMotorQueue;
+
+QueueHandle_t xMotorQueue;
 
 void enable_motor_driver(void) {
 	HAL_GPIO_WritePin(MOTOR_EN_GPIO_Port, MOTOR_EN_Pin, GPIO_PIN_SET);
@@ -47,51 +49,61 @@ void send_motor_steps(uint32_t step_count, uint32_t delay_in_us) {
 
 void StartMotorTask(void const *argument)
 {
-	uint8_t first = 1;
+	motorMessage_t motorMessage;
+	BaseType_t xStatus;
+	uint8_t homing = 0;
+	uint32_t current_position_in_steps = 0;
+	uint32_t target_position_in_steps = 0;
+
 	for(;;)
 	  {
-		  if(first) {
-			  uint8_t dir = 1;
-			  uint32_t wait = 20000;
-			  uint8_t move = 1;
-			  uint32_t res = 0;
-			  uint32_t sg_result = 0;
-			  uint32_t min_sg_result = 1024;
-			  uint32_t max_sg_result = 0;
 
 
-			  uint32_t count = 0;
-			  uint8_t status = 0;
-			  uint8_t homing = 1;
+		if (uxQueueMessagesWaiting(xMotorQueue) > 0) {
+			xStatus = xQueueReceive(xMotorQueue, &motorMessage, 0);
+			if (xStatus == pdPASS) {
+
+				switch (motorMessage.motorCommand) {
+					case (HOME):
+						target_position_in_steps = 0;
+						homing = 1;
+						break;
+
+				}
+
+			} else {
+				//todo: error handling
+			}
+		}
+
+		if(homing) {
 			  set_motor_dir(0);
+			  uint32_t wait = 20000;
+			  uint32_t at_home_position = 0;
 
-			  while(homing == 1) {
-				  if(move) {
+
+			  uint8_t status = 0;
+
+
+			  while(homing) {
+				  if(!at_home_position) {
 					  send_motor_steps(400,wait);
 					  HAL_Delay(25); //wait for motor to settle before checking the stall result
 
-					  res = tmc_readwrite_register(TMC_REG_DRV_STATUS, res, 0);
-					  sg_result = res & 0x3ff;
-
-
-					  if(sg_result > max_sg_result) max_sg_result = sg_result;
-					  if(sg_result > 0 && sg_result < min_sg_result ) min_sg_result = sg_result;
-
 					  status = tmc_get_status();
 					  if((status >> 2) & 0x01) { //if stall is detected
-						  move = 0;
+						  at_home_position = 1;
 					  }
 
 
 
 				  } else {
 					  homing = 0;
+					  current_position_in_steps = 0;
 				  }
 			  }
 
-			  set_motor_dir(1);
-			  send_motor_steps(19100,wait);
-			  first = 0;
+
 		  }
 
 

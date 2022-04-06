@@ -31,7 +31,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+	extern QueueHandle_t xMotorQueue;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -47,9 +47,10 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
 
+	osThreadId motorTaskHandle;
+
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
-osThreadId motorTaskHandle;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -99,7 +100,10 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
+
+
+	xMotorQueue = xQueueCreate(30, sizeof(motorMessage_t));
+
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -125,9 +129,31 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
+
+  uint8_t first_run = 1;
+  motorMessage_t motorMessage;
+  BaseType_t xStatus;
+
   for(;;)
   {
-    osDelay(1);
+
+
+
+
+
+	if(first_run) {
+		motorMessage.motorCommand = HOME;
+		motorMessage.steps = 0;
+
+		xStatus = xQueueSendToBack(xMotorQueue, &motorMessage, 0);
+
+		if (xStatus != pdPASS) {
+			//todo: add an assert or wait
+		}
+		first_run = 0;
+  	  }
+
+      osDelay(50);
   }
   /* USER CODE END StartDefaultTask */
 }
