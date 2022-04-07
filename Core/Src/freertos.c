@@ -31,7 +31,7 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-	extern QueueHandle_t xMotorQueue;
+	extern QueueHandle_t xMotorQueue; //todo: find a better place for this
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -133,12 +133,26 @@ void StartDefaultTask(void const * argument)
   uint8_t first_run = 1;
   motorMessage_t motorMessage;
   BaseType_t xStatus;
+  uint8_t manual_run = 0;
+  uint32_t manual_step = 25000;
 
   for(;;)
   {
 
 
 
+
+	if(manual_run) {
+				motorMessage.motorCommand = MOVE_TO_POSITION;
+				motorMessage.steps = manual_step;
+
+				xStatus = xQueueSendToBack(xMotorQueue, &motorMessage, 0);
+
+				if (xStatus != pdPASS) {
+					//todo: add an assert or wait
+				}
+				manual_run = 0;
+	}
 
 
 	if(first_run) {
@@ -150,8 +164,21 @@ void StartDefaultTask(void const * argument)
 		if (xStatus != pdPASS) {
 			//todo: add an assert or wait
 		}
+
+
+		motorMessage.motorCommand = MOVE_TO_POSITION;
+		motorMessage.steps = 19000;
+
+		xStatus = xQueueSendToBack(xMotorQueue, &motorMessage, 0);
+
+		if (xStatus != pdPASS) {
+			//todo: add an assert or wait
+		}
+
+
 		first_run = 0;
-  	  }
+
+  	}
 
       osDelay(50);
   }

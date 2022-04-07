@@ -17,7 +17,7 @@ uint32_t tmc_enable_stallguard(void) {
 	int8_t sgt = 0;
 
 
-	reg_data = 0x01060000; //sgt = 64, filt = 1;
+	reg_data = 0x010A0000; //sgt = 64, filt = 1;
 
 	tmc_readwrite_register(TMC_REG_COOLCONF, reg_data, 1);
 

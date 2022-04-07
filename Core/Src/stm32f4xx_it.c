@@ -23,9 +23,11 @@
 #include "stm32f4xx_it.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tim.h"
+#include "motorcontrol.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +47,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+	extern QueueHandle_t xMotorQueue; //todo: find a better place for this
 
 /* USER CODE END PV */
 
@@ -168,11 +171,21 @@ void DebugMon_Handler(void)
 void TIM1_UP_TIM10_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 0 */
-        HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
+  motorMessage_t motorMessage;
+  BaseType_t xStatus;
+
+
+  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
   /* USER CODE END TIM1_UP_TIM10_IRQn 0 */
   HAL_TIM_IRQHandler(&htim1);
   /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
-        HAL_TIM_OC_Stop_IT(&htim1, TIM_CHANNEL_1);
+  HAL_TIM_OC_Stop_IT(&htim1, TIM_CHANNEL_1);
+
+
+  motorMessage.motorCommand = STOP_MOTOR;
+  motorMessage.steps = 0; //not used
+
+  xStatus = xQueueSendToFrontFromISR(xMotorQueue, &motorMessage, 0); //todo: consider if this should go to front of queue
   /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
 }
 
