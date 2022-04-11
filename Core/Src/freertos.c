@@ -142,7 +142,7 @@ void StartDefaultTask(void const * argument)
 
 
 
-	if(manual_run) {
+		if(manual_run) {
 				motorMessage.motorCommand = MOVE_TO_POSITION;
 				motorMessage.steps = manual_step;
 

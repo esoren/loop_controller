@@ -12,6 +12,9 @@
 #include "motorcontrol.h"
 #include "tim.h"
 #include "tmc2130.h"
+#include "string.h"
+#include "debug.h"
+#include "usart.h"
 
 //extern QueueHandle_t xMotorQueue;
 
@@ -86,6 +89,7 @@ void StartMotorTask(void const *argument)
 						if(!homing) {
 							moving = 0;
 							current_position_in_steps = target_position_in_steps; //todo: check the status of the counter and adjust, if necessary
+							debugPrintln(&huart2, "Motor Stopped.");
 						}
 						break;
 				}
@@ -103,16 +107,18 @@ void StartMotorTask(void const *argument)
 
 			while(homing) {
 			  if(!at_home_position) {
-				  send_motor_steps(400,wait);
-				  HAL_Delay(40); //wait for motor to settle before checking the stall result
+				  send_motor_steps(60000,wait);
+				  HAL_Delay(50); //wait for motor to settle before checking the stall result
 
 				  status = tmc_get_status();
 				  if((status >> 2) & 0x01) { //if stall is detected
 					  at_home_position = 1;
 					  homing = 0;
 					  current_position_in_steps = 0;
+					  target_position_in_steps = 0;
 					  moving = 0;
 					  stop_motor();
+					  debugPrintln(&huart2, "At Home Position.");
 				  }
 			  }
 			}
