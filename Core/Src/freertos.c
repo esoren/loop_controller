@@ -27,11 +27,14 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */     
 #include "motorcontrol.h"
+#include "usart.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 	extern QueueHandle_t xMotorQueue; //todo: find a better place for this
+	extern QueueHandle_t xSerialQueue; //todo: find a better place for this
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -48,6 +51,7 @@
 /* USER CODE BEGIN Variables */
 
 	osThreadId motorTaskHandle;
+	osThreadId serialTaskHandle;
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
@@ -102,7 +106,7 @@ void MX_FREERTOS_Init(void) {
 
 
 	xMotorQueue = xQueueCreate(30, sizeof(motorMessage_t));
-
+	xSerialQueue = xQueueCreate(30, 1); //bytes to transfer to UART task
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
@@ -113,6 +117,10 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_THREADS */
   osThreadDef(motorTask, StartMotorTask, osPriorityNormal, 0, 128);
   motorTaskHandle = osThreadCreate(osThread(motorTask), NULL);
+
+  osThreadDef(serialTask, StartSerialTask, osPriorityNormal, 0, 128);
+  serialTaskHandle = osThreadCreate(osThread(serialTask), NULL);
+
   /* USER CODE END RTOS_THREADS */
 
 }
@@ -141,7 +149,7 @@ void StartDefaultTask(void const * argument)
   {
 
 	  	//Testing on 06/07/2022
-	  	//25380 = CW band of 20m
+	  	//25300 = CW band of 20m
 
 
 		if(manual_run) {
@@ -154,8 +162,12 @@ void StartDefaultTask(void const * argument)
 					//todo: add an assert or wait
 				}
 				manual_run = 0;
-	}
+		}
 
+		if(turn_off_motor) {
+			disable_motor_driver();
+			turn_off_motor  = 0;
+		}
 
 	if(first_run) {
 		motorMessage.motorCommand = HOME;
@@ -169,7 +181,8 @@ void StartDefaultTask(void const * argument)
 
 
 		motorMessage.motorCommand = MOVE_TO_POSITION;
-		motorMessage.steps = 25380;
+		//motorMessage.steps = 25300;
+		motorMessage.steps = 1000;
 
 		xStatus = xQueueSendToBack(xMotorQueue, &motorMessage, 0);
 

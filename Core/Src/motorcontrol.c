@@ -26,11 +26,11 @@ void power_off_motor_driver(void) { //turn on by re-init
 }
 
 void enable_motor_driver(void) {
-	HAL_GPIO_WritePin(MOTOR_EN_GPIO_Port, MOTOR_EN_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(TMC_EN_GPIO_Port, TMC_EN_Pin, GPIO_PIN_RESET);
 }
 
 void disable_motor_driver(void) {
-	HAL_GPIO_WritePin(MOTOR_EN_GPIO_Port, MOTOR_EN_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(TMC_EN_GPIO_Port, TMC_EN_Pin, GPIO_PIN_SET);
 }
 
 
@@ -43,7 +43,7 @@ void set_motor_dir(uint8_t motor_dir) {
 }
 
 void send_motor_steps(uint32_t step_count, uint32_t delay_in_us) {
-
+	enable_motor_driver();
 	__HAL_TIM_SET_AUTORELOAD(&htim1, step_count);
 	__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
 	HAL_TIM_OC_Start_IT(&htim1, TIM_CHANNEL_1);
@@ -58,6 +58,7 @@ void send_motor_steps(uint32_t step_count, uint32_t delay_in_us) {
 void stop_motor() {
 	  HAL_TIM_PWM_Stop(&htim2, TIM_CHANNEL_3);
 	  HAL_TIM_OC_Stop_IT(&htim1, TIM_CHANNEL_1);
+	  disable_motor_driver();
 	  return;
 }
 
@@ -83,6 +84,7 @@ void StartMotorTask(void const *argument)
 
 				switch (motorMessage.motorCommand) {
 					case (HOME):
+						debugPrintln(&huart2, "Homing Started.");
 						target_position_in_steps = 0;
 						homing = 1;
 						break;
@@ -95,6 +97,7 @@ void StartMotorTask(void const *argument)
 							moving = 0;
 							current_position_in_steps = target_position_in_steps; //todo: check the status of the counter and adjust, if necessary
 							debugPrintln(&huart2, "Motor Stopped.");
+							disable_motor_driver();
 						}
 						break;
 				}

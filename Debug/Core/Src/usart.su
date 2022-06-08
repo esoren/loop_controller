@@ -1,3 +1,8 @@
-usart.c:31:6:MX_USART2_UART_Init	8	static
-usart.c:49:6:HAL_UART_MspInit	48	static
-usart.c:82:6:HAL_UART_MspDeInit	16	static
+usart.c:36:6:MX_USART2_UART_Init	8	static
+usart.c:54:6:HAL_UART_MspInit	48	static
+usart.c:87:6:HAL_UART_MspDeInit	16	static
+usart.c:119:6:debugPrintln	24	static
+usart.c:127:6:send_uart	16	static
+usart.c:132:6:setup_uart_receive	8	static
+usart.c:137:6:HAL_UART_RxCpltCallback	24	static
+usart.c:150:6:StartSerialTask	168	static

@@ -21,6 +21,11 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include "FreeRTOS.h"
+#include "queue.h"
+#include "motorcontrol.h"
+
+extern QueueHandle_t xMotorQueue; //todo: find a better place for this
 
 /* USER CODE END 0 */
 
@@ -105,6 +110,106 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+
+QueueHandle_t xSerialQueue;
+
+
+volatile uint8_t uartBuffer;
+
+void debugPrintln(UART_HandleTypeDef *huart, char _out[]){
+	HAL_UART_Transmit(huart, (uint8_t *) _out, strlen(_out), 10);
+	char newline[2] = "\r\n";
+	HAL_UART_Transmit(huart, (uint8_t *) newline, 2, 10);
+	return;
+}
+
+
+void send_uart(UART_HandleTypeDef *huart, char _out[]){
+	HAL_UART_Transmit(huart, (uint8_t *) _out, strlen(_out), 10);
+	return;
+}
+
+void setup_uart_receive() {
+	HAL_UART_Receive_IT(&huart2, &uartBuffer, 1);
+	return;
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	BaseType_t xStatus;
+
+	xStatus = xQueueSendToBackFromISR(xSerialQueue, &uartBuffer, 0);
+	HAL_UART_Receive_IT(&huart2, &uartBuffer, 1);
+
+
+    return;
+}
+
+
+
+void StartSerialTask(void const *argument)
+{
+	char serialChar = 0;
+	char serialBuffer[99];
+	char numStr[20];
+	int val = 0;
+
+	uint8_t bufPos = 0;
+
+	BaseType_t xStatus;
+	uint8_t test = 1;
+
+	motorMessage_t motorMessage;
+
+	for(;;) {
+
+
+
+		if (uxQueueMessagesWaiting(xSerialQueue) > 0) {
+			xStatus = xQueueReceive(xSerialQueue, &serialChar, 0);
+			send_uart(&huart2, &serialChar);
+			serialBuffer[bufPos] = serialChar;
+			bufPos++;
+			//VERY crude message handling. Need to re-write this..
+
+			if(serialChar == '\r') { //new line, process and send command
+				send_uart(&huart2, "\n");
+
+				switch(serialBuffer[0]) {
+				case('m'):
+					for(int j = 0; j < 20; j++) { //empty the buffer
+						numStr[j] = ' ';
+					}
+
+					for(int i = 1; i < bufPos-1; i++) {
+						numStr[i-1] = serialBuffer[i];
+					}
+					val = atoi(&numStr);
+
+					motorMessage.motorCommand = MOVE_TO_POSITION;
+					motorMessage.steps = val;
+
+					//todo: add bounds checking for steps
+					xStatus = xQueueSendToBack(xMotorQueue, &motorMessage, 0);
+
+					if (xStatus != pdPASS) {
+						//todo: add an assert or wait
+					}
+				}
+				bufPos = 0; //reset the buffer position
+
+			}
+
+		}
+
+	    osDelay(10);
+
+
+
+	}
+}
+
+
 
 /* USER CODE END 1 */
 

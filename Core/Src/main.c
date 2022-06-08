@@ -107,7 +107,7 @@ int main(void)
 
   HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
 
-
+  setup_uart_receive();
 
 
 
