@@ -18,6 +18,8 @@ uint32_t tmc_enable_stallguard(void) {
 
 
 	reg_data = 0x010A0000; //loop antenna
+	reg_data = 0x010B0000; //loop antenna
+	reg_data = 0x010D0000;
 	//reg_data = 0x013D0000;
 	tmc_readwrite_register(TMC_REG_COOLCONF, reg_data, 1);
 

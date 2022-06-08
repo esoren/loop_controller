@@ -1,5 +1,5 @@
 tmc2130.c:15:10:tmc_enable_stallguard	16	static
-tmc2130.c:31:9:tmc_get_status	48	static
-tmc2130.c:70:10:tmc_readwrite_register	48	static
-tmc2130.c:119:6:tmc_set_motor_current	24	static
-tmc2130.c:134:6:tmc_init	24	static
+tmc2130.c:33:9:tmc_get_status	48	static
+tmc2130.c:72:10:tmc_readwrite_register	48	static
+tmc2130.c:121:6:tmc_set_motor_current	24	static
+tmc2130.c:136:6:tmc_init	24	static

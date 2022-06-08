@@ -20,6 +20,11 @@
 
 QueueHandle_t xMotorQueue;
 
+
+void power_off_motor_driver(void) { //turn on by re-init
+	HAL_GPIO_WritePin(TMC_PWR_GPIO_Port, TMC_PWR_Pin, GPIO_PIN_RESET);
+}
+
 void enable_motor_driver(void) {
 	HAL_GPIO_WritePin(MOTOR_EN_GPIO_Port, MOTOR_EN_Pin, GPIO_PIN_SET);
 }
@@ -107,8 +112,10 @@ void StartMotorTask(void const *argument)
 
 			while(homing) {
 			  if(!at_home_position) {
-				  send_motor_steps(60000,wait);
+				  send_motor_steps(100,wait);
 				  HAL_Delay(50); //wait for motor to settle before checking the stall result
+				  //Note: this may be causing variability in the homing position. Maybe can help with this by slowing the homing process or tuning this time.
+				  //This whole section needs to be reworked to make it more consistent.
 
 				  status = tmc_get_status();
 				  if((status >> 2) & 0x01) { //if stall is detected

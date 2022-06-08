@@ -52,7 +52,6 @@
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
 
-
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 /* USER CODE END FunctionPrototypes */
@@ -135,11 +134,14 @@ void StartDefaultTask(void const * argument)
   BaseType_t xStatus;
   uint8_t manual_run = 0;
   uint32_t manual_step = 25000;
+  uint8_t turn_off_motor = 0;
+  uint8_t turn_on_motor = 0;
 
   for(;;)
   {
 
-
+	  	//Testing on 06/07/2022
+	  	//25380 = CW band of 20m
 
 
 		if(manual_run) {
@@ -167,7 +169,7 @@ void StartDefaultTask(void const * argument)
 
 
 		motorMessage.motorCommand = MOVE_TO_POSITION;
-		motorMessage.steps = 19000;
+		motorMessage.steps = 25380;
 
 		xStatus = xQueueSendToBack(xMotorQueue, &motorMessage, 0);
 

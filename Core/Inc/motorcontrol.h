@@ -23,6 +23,7 @@ typedef struct {
 	uint32_t steps;
 } motorMessage_t;
 
+void turn_off_motor_power(void);
 void enable_motor_driver(void);
 void disable_motor_driver(void);
 void set_motor_dir(uint8_t motor_dir);
